@@ -1,0 +1,36 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./:/var/www/
+      - ./_docker/nginx/conf.d/:/etc/nginx/conf.d/
+    ports:
+      - "8876:80"
+    container_name: medov_nginx
+    depends_on:
+      - app
+
+  app:
+    build:
+      context: .
+      dockerfile: _docker/app/Dockerfile
+    volumes:
+      - ./:/var/www/
+    container_name: medov_app
+    depends_on:
+      - db
+
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - ./tmp/db:/var/lib/postgres
+    environment:
+      POSTGRES_DB: mdb
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "8101:5432"
+    container_name: medov_pg_db
